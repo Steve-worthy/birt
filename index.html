@@ -41,7 +41,7 @@
             max-width: 1000px;
             margin: 0 auto;
             position: relative;
-            z-index: 5;
+ z-index: 5;
         }
 
         header h1 {
@@ -350,7 +350,7 @@
         /* --- PHOTO GALLERY --- */
         .gallery-section { margin: 50px 0; }
         .gallery-section h2 { text-transform: uppercase; font-size: 1.6rem; margin-bottom: 25px; color: var(--silk-purple); }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; position: relative; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; position: relative; }
         
         .photo-card-static {
             position: relative; width: 100%; height: auto;
@@ -358,6 +358,8 @@
             box-shadow: 0 12px 30px rgba(14, 165, 233, 0.12); border: 2px solid rgba(14, 165, 233, 0.1);
             transition: transform 0.3s ease, border-color 0.3s ease;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
         }
         .photo-card-static:hover {
             transform: translateY(-5px);
@@ -365,7 +367,16 @@
             box-shadow: 0 15px 35px rgba(0, 229, 255, 0.2);
         }
         
-        .photo-card-static img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; pointer-events: none; }
+        /* FIX: Changed layout rules so images scale cleanly with 0% cutting or cropping */
+        .photo-card-static img { 
+            width: 100%; 
+            height: auto; 
+            max-height: 350px; 
+            object-fit: contain; 
+            background-color: rgba(21, 69, 107, 0.03); 
+            border-radius: 10px; 
+            pointer-events: none; 
+        }
         .photo-caption { font-family: 'Georgia', serif; font-style: italic; font-size: 0.95rem; margin-top: 12px; color: #3b5c78; font-weight: bold; }
 
         /* --- PHOTO ZOOM STYLES --- */
@@ -373,19 +384,23 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(1.5);
+            transform: translate(-50%, -50%) scale(1);
             z-index: 9999;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
             border-color: #00e5ff;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 320px;
+            width: 90%;
+            max-width: 450px;
+        }
+        .photo-card-static.zoomed img {
+            max-height: 70vh;
         }
 
         .photo-card-static.zoomed::before {
             content: '';
             position: fixed;
             top: -200vh; left: -200vw; right: -200vw; bottom: -200vh;
-            background: rgba(11, 21, 33, 0.65);
+            background: rgba(11, 21, 33, 0.75);
             z-index: -1;
             pointer-events: none;
         }
