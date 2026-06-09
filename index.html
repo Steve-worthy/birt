@@ -621,12 +621,10 @@
         }
 
         let audioContext, analyser, microphone, javascriptNode;
-        let micActivated = false;
         let candleIsOut = false;
         let cakeIsCut = false;
         let totalStrawberriesPopped = 0;
         let fireworkInterval = null;
-        let lastClickTime = 0;
 
         function playMusic() {
             const audio = document.getElementById('bgMusic');
@@ -718,121 +716,61 @@
             }
         }
 
-        // ZOOM IN ON SINGLE TAP / RESIZE DOWN ON DOUBLE TAP CONTROLLER
         function clickPhotoCard(element, id) {
             playMusic();
-            const currentTime = new Date().getTime();
-            const timeDifference = currentTime - lastClickTime;
-
-            if (!elementsClicked['card' + id]) {
-                elementsClicked['card' + id] = true;
-                let rect = element.getBoundingClientRect();
-                addPoints(5, null, rect.left + window.scrollX + (rect.width / 2), rect.top + window.scrollY + 20);
-            }
-
-            if (timeDifference < 300) {
-                // Double Click / Tap -> Resize to original layout
-                if (element.classList.contains('zoomed')) {
-                    element.classList.remove('zoomed');
-                    element.style.transform = '';
-                }
+            if (element.classList.contains('zoomed')) {
+                element.classList.remove('zoomed');
             } else {
-                // Single Click / Tap -> Zoom to screen center
-                setTimeout(() => {
-                    if (new Date().getTime() - lastClickTime >= 300) {
-                        document.querySelectorAll('.photo-card-static').forEach(card => {
-                            if (card !== element) card.classList.remove('zoomed');
-                        });
-                        element.classList.add('zoomed');
-                    }
-                }, 300);
-            }
-            lastClickTime = currentTime;
-        }
-
-        function triggerOreoFountain(element) {
-            const rect = element.getBoundingClientRect();
-            const colors = ['#00e5ff', '#ffd700', '#3a9ad9', '#ffffff', '#0a3680'];
-            
-            for (let i = 0; i < 12; i++) {
-                let oreo = document.createElement('div');
-                oreo.className = 'fountain-oreo';
-                oreo.innerText = 'OREO';
+                document.querySelectorAll('.photo-card-static').forEach(card => card.classList.remove('zoomed'));
+                element.classList.add('zoomed');
                 
-                let randomColor = colors[Math.floor(Math.random() * colors.length)];
-                oreo.style.setProperty('--fountain-color', randomColor);
-                
-                oreo.style.left = `${rect.left + window.scrollX + (rect.width / 2) - 23}px`;
-                oreo.style.top = `${rect.top + window.scrollY + 20}px`;
-                
-                let angle = (Math.random() * Math.PI) + Math.PI; 
-                let speed = 8 + Math.random() * 12;
-                let fxX = Math.cos(angle) * speed * 15;
-                let fxY = Math.sin(angle) * speed * 15;
-                
-                oreo.style.setProperty('--fx-x', `${fxX}px`);
-                oreo.style.setProperty('--fx-y', `${fxY}px`);
-                oreo.style.animation = 'fountainBlast 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards';
-                
-                document.body.appendChild(oreo);
-                setTimeout(() => oreo.remove(), 1200);
+                const cardKey = `card${id}`;
+                if (!elementsClicked[cardKey]) {
+                    elementsClicked[cardKey] = true;
+                    let rect = element.getBoundingClientRect();
+                    addPoints(10, null, rect.left + window.scrollX + (rect.width / 2), rect.top + window.scrollY);
+                }
             }
         }
 
         function initMicrophone() {
-            if (micActivated) return;
-            const statusLabel = document.getElementById('micStatus');
-            
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then(function(stream) {
-                micActivated = true;
-                statusLabel.textContent = "🎙️ Mic active! Blow into your microphone to put out the candle!";
-                statusLabel.style.color = "#00e5ff";
-                
-                window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioContext = new AudioContext();
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                document.getElementById('micStatus').textContent = "🎙️ Listening... Blow hard into the microphone!";
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
                 microphone = audioContext.createMediaStreamSource(stream);
                 javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
-                
-                analyser.smoothingTimeConstant = 0.4;
+
+                analyser.smoothingTimeConstant = 0.8;
                 analyser.fftSize = 1024;
-                
+
                 microphone.connect(analyser);
                 analyser.connect(javascriptNode);
                 javascriptNode.connect(audioContext.destination);
-                
-                javascriptNode.onaudioprocess = function() {
+
+                javascriptNode.onaudioprocess = () => {
                     let array = new Uint8Array(analyser.frequencyBinCount);
                     analyser.getByteFrequencyData(array);
                     let values = 0;
-                    for (let i = 0; i < array.length; i++) {
-                        values += array[i];
-                    }
+                    for (let i = 0; i < array.length; i++) { values += array[i]; }
                     let average = values / array.length;
                     
-                    if (average > 55) { 
-                        if (!candleIsOut) {
-                            blowOutCandle(null);
-                            statusLabel.textContent = "💨 You blew it out! Awesome job!";
-                            statusLabel.style.color = "#22c55e";
-                            stream.getTracks().forEach(track => track.stop());
-                            javascriptNode.onaudioprocess = null;
-                        }
+                    if (average > 45 && !candleIsOut) {
+                        blowOutCandle(null);
+                        document.getElementById('micStatus').textContent = "🕯️ Candle blown out successfully!";
+                        stream.getTracks().forEach(track => track.stop());
                     }
                 };
-            })
-            .catch(function(err) {
-                statusLabel.textContent = "❌ Microphone access blocked. Use tap controls instead!";
-                statusLabel.style.color = "#ef4444";
+            }).catch(() => {
+                document.getElementById('micStatus').textContent = "❌ Mic access denied. Use manual taps instead!";
             });
         }
 
-        // --- HIGHT-PERFORMANCE CANVAS PARTICLES ENGINE ---
+        /* --- ADVANCED ENGINE MECHANICS --- */
         const canvas = document.getElementById('fxCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-
+        
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -841,103 +779,93 @@
         resizeCanvas();
 
         class Particle {
-            constructor(x, y, isFirework = false, color = null) {
+            constructor(x, y, color) {
                 this.x = x;
                 this.y = y;
-                this.isFirework = isFirework;
-                
-                const themeColors = ['#00e5ff', '#ffd700', '#0288d1', '#ffffff', '#ff6b6b', '#a855f7'];
-                this.color = color || themeColors[Math.floor(Math.random() * themeColors.length)];
-                
-                if (isFirework) {
-                    let angle = Math.random() * Math.PI * 2;
-                    let speed = Math.random() * 6 + 2;
-                    this.vx = Math.cos(angle) * speed;
-                    this.vy = Math.sin(angle) * speed;
-                    this.gravity = 0.08;
-                    this.friction = 0.98;
-                    this.life = 100 + Math.random() * 40;
-                } else {
-                    this.vx = Math.random() * 6 - 3;
-                    this.vy = Math.random() * -5 - 3;
-                    this.gravity = 0.12;
-                    this.friction = 0.99;
-                    this.life = 150;
-                }
-                this.opacity = 1;
-                this.size = Math.random() * 4 + 3;
+                this.color = color;
+                this.size = Math.random() * 4 + 2;
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * -8 - 4;
+                this.gravity = 0.15;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.015 + 0.005;
             }
-
             update() {
-                this.vx *= this.friction;
-                this.vy *= this.friction;
-                this.vy += this.gravity;
-                this.x += this.vx;
-                this.y += this.vy;
-                this.life--;
-                this.opacity = Math.max(0, this.life / 100);
+                this.speedY += this.gravity;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= this.decay;
             }
-
             draw() {
                 ctx.save();
-                ctx.globalAlpha = this.opacity;
+                ctx.globalAlpha = this.alpha;
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                if(this.isFirework) {
-                    ctx.arc(this.x, this.y, this.size / 1.5, 0, Math.PI * 2);
-                } else {
-                    ctx.fillRect(this.x, this.y, this.size * 1.5, this.size);
-                }
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
         }
 
-        document.addEventListener('click', (e) => {
-            // Clicking background closes any open photo zoom window automatically
-            if (!e.target.closest('.photo-card-static')) {
-                document.querySelectorAll('.photo-card-static').forEach(card => {
-                    card.classList.remove('zoomed');
-                    card.style.transform = '';
-                });
-            }
-        });
-
         function triggerBurstFX() {
-            for (let i = 0; i < 60; i++) {
-                particles.push(new Particle(window.innerWidth * 0.1, window.innerHeight * 0.9));
-                particles.push(new Particle(window.innerWidth * 0.9, window.innerHeight * 0.9));
+            const colors = ['#00e5ff', '#ffd700', '#0288d1', '#ff4081', '#7c4dff'];
+            for (let i = 0; i < 75; i++) {
+                particles.push(new Particle(window.innerWidth / 2, window.innerHeight / 2, colors[Math.floor(Math.random() * colors.length)]));
             }
         }
 
-        function launchSingleFirework() {
-            let startX = Math.random() * window.innerWidth;
-            let startY = Math.random() * (window.innerHeight * 0.5);
-            const colors = ['#00e5ff', '#ffd700', '#ff3366', '#9933ff', '#33cc66'];
-            let pickedColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            for(let i=0; i<50; i++) {
-                particles.push(new Particle(startX, startY, true, pickedColor));
+        function createFirework() {
+            const colors = ['#00e5ff', '#ffd700', '#ff4081', '#b3e5fc', '#ffffff'];
+            const startX = Math.random() * window.innerWidth;
+            const startY = Math.random() * (window.innerHeight * 0.5) + (window.innerHeight * 0.1);
+            for (let i = 0; i < 40; i++) {
+                particles.push(new Particle(startX, startY, colors[Math.floor(Math.random() * colors.length)]));
             }
         }
 
         function startUnlimitedFireworks() {
             if (fireworkInterval) return;
-            fireworkInterval = setInterval(launchSingleFirework, 900);
+            createFirework();
+            fireworkInterval = setInterval(createFirework, 1500);
         }
 
-        function updateParticlesLoop() {
+        function triggerOreoFountain(element) {
+            const rect = element.getBoundingClientRect();
+            const colors = ['#00e5ff', '#ffd700', '#ffffff'];
+            for(let i=0; i<12; i++) {
+                let oreo = document.createElement('div');
+                oreo.className = 'fountain-oreo';
+                oreo.innerText = 'OREO';
+                oreo.style.setProperty('--fountain-color', colors[Math.floor(Math.random()*colors.length)]);
+                oreo.style.left = `${rect.left + window.scrollX + (rect.width/2) - 23}px`;
+                oreo.style.top = `${rect.top + window.scrollY}px`;
+                
+                let angle = (Math.random() * Math.PI) + Math.PI; 
+                let force = Math.random() * 120 + 80;
+                let fxX = Math.cos(angle) * force;
+                let fxY = Math.sin(angle) * force;
+                
+                oreo.style.setProperty('--fx-x', `${fxX}px`);
+                oreo.style.setProperty('--fx-y', `${fxY}px`);
+                oreo.style.animation = 'fountainBlast 1s cubic-bezier(0.1,-0.6,0.2,1) forwards';
+                
+                document.body.appendChild(oreo);
+                setTimeout(() => oreo.remove(), 1000);
+            }
+        }
+
+        function loop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].update();
                 particles[i].draw();
-                if (particles[i].life <= 0 || particles[i].opacity <= 0) {
+                if (particles[i].alpha <= 0) {
                     particles.splice(i, 1);
                 }
             }
-            requestAnimationFrame(updateParticlesLoop);
+            requestAnimationFrame(loop);
         }
-        requestAnimationFrame(updateParticlesLoop);
+        requestAnimationFrame(loop);
     </script>
 </body>
 </html>
