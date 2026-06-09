@@ -6,7 +6,6 @@
     <title>Happiest Birthday to my Little Sister 💖</title>
     <style>
         :root {
-            /* Modified background states */
             --bg-current-light: #ffffff; 
             --bg-current-glow: #ffffff;  
             --silk-purple: #0f344e;
@@ -29,14 +28,13 @@
 
         body {
             font-family: 'Arial Black', 'Impact', sans-serif;
-            /* Radial glow responds to mouse coordinates, utilizing smooth variables */
             background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--bg-current-glow) 0%, var(--bg-current-light) 70%);
             color: var(--chocolate-melt);
             min-height: 100vh;
             text-align: center;
             padding: 20px 10px;
             overflow-x: hidden;
-            transition: background 1s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth 1-second transition */
+            transition: background 1s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .container {
@@ -206,7 +204,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
 
-        /* Cake Wrapper Dynamic Slice State */
         .cake-wrapper {
             position: relative;
             width: 260px;
@@ -269,7 +266,6 @@
         .strawberry::after { content: '✨'; font-size: 14px; position: absolute; top: -3px; left: 6px; }
         .strawberry.popped { animation: floatUp 0.5s forwards; opacity: 0; pointer-events: none; }
 
-        /* Elegant Frosting Slice Cut Overlay Line */
         .cake-slice-line {
             position: absolute; top: -15px; left: 50%; width: 4px; height: 230px;
             background: linear-gradient(to bottom, transparent, var(--silk-gold), rgba(255, 255, 255, 0.9), transparent);
@@ -281,7 +277,6 @@
             transform: translateX(-50%) scaleY(1); opacity: 1;
         }
 
-        /* Candle Styling */
         .candle {
             width: 12px; height: 65px;
             background: repeating-linear-gradient(45deg, #ffffff, #ffffff 6px, #00e5ff 6px, #00e5ff 12px);
@@ -306,7 +301,6 @@
         }
         .smoke.active { animation: floatUp 2s forwards; display: block; }
 
-        /* Animated Interactive Cake Knife Feature */
         .cake-knife {
             position: absolute; top: -20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             font-size: 2.8rem; cursor: pointer; display: none; z-index: 12;
@@ -356,7 +350,7 @@
         /* --- PHOTO GALLERY --- */
         .gallery-section { margin: 50px 0; }
         .gallery-section h2 { text-transform: uppercase; font-size: 1.6rem; margin-bottom: 25px; color: var(--silk-purple); }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; position: relative; }
         
         .photo-card-static {
             position: relative; width: 100%; height: auto;
@@ -371,8 +365,30 @@
             box-shadow: 0 15px 35px rgba(0, 229, 255, 0.2);
         }
         
-        .photo-card-static img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+        .photo-card-static img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; pointer-events: none; }
         .photo-caption { font-family: 'Georgia', serif; font-style: italic; font-size: 0.95rem; margin-top: 12px; color: #3b5c78; font-weight: bold; }
+
+        /* --- PHOTO ZOOM STYLES --- */
+        .photo-card-static.zoomed {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.5);
+            z-index: 9999;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            border-color: #00e5ff;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 320px;
+        }
+
+        .photo-card-static.zoomed::before {
+            content: '';
+            position: fixed;
+            top: -200vh; left: -200vw; right: -200vw; bottom: -200vh;
+            background: rgba(11, 21, 33, 0.65);
+            z-index: -1;
+            pointer-events: none;
+        }
 
         /* --- UNLOCKED BIRTHDAY LETTER --- */
         .letter-box {
@@ -392,10 +408,10 @@
             animation: floatUpText 1s forwards; pointer-events: none; z-index: 999;
         }
 
-        /* --- PARTY ACTIVE STYLING ACTIVATED VIA INJECTED INLINE CSS CLASS ONCE CUT --- */
+        /* --- PARTY ACTIVE STYLING --- */
         body.party-active { 
-            --bg-current-light: #e0f2fe;  /* Beautiful light blue background */
-            --bg-current-glow: #bae6fd;   /* Radiant baby blue focal glow */
+            --bg-current-light: #e0f2fe;  
+            --bg-current-glow: #bae6fd;   
         }
         body.party-active .time-box { background: #f0f9ff; border-color: #00e5ff; box-shadow: 0 10px 25px rgba(0,229,255,0.2); }
         body.party-active .number { color: #0288d1; text-shadow: 0 0 12px rgba(2, 136, 209, 0.4); }
@@ -439,7 +455,6 @@
             <p>Tracking every single second of your brilliant, beautiful life since 10/06/2010!</p>
         </header>
 
-        <!-- QUEST CONTROLLER -->
         <div class="quest-board">
             <div class="score-display"><span id="scoreNum">0</span> / 100 PTS</div>
             <div class="quest-hint" id="questStatusText">👉 Quest Objective: Blow out the beautiful birthday candle!</div>
@@ -460,7 +475,6 @@
                 <p id="micStatus" style="font-size:0.85rem; font-weight:normal; font-family:sans-serif; color: #55758f;">Or tap the cake layers or glowing flame to blow it out!</p>
                 
                 <div class="cake-display">
-                    <!-- Interactive Floating Knife Button Structure -->
                     <div class="cake-knife" id="cakeKnife" onclick="cutTheCake(event)">🔪 Tap to Cut</div>
 
                     <div class="candle" id="mainCandle">
@@ -468,7 +482,6 @@
                         <div class="smoke" id="cakeSmoke"></div>
                     </div>
                     
-                    <!-- Cake Wrapper -->
                     <div class="cake-wrapper" id="cakeContainer" onclick="handleCakeStageClick(event)">
                         <div class="cake-slice-line"></div>
                         
@@ -507,7 +520,6 @@
             </div>
         </div>
 
-        <!-- STATIC PHOTO GALLERY -->
         <div class="gallery-section">
             <h2>Best Moments Together 📸</h2>
             <div class="gallery-grid">
@@ -530,7 +542,6 @@
             </div>
         </div>
 
-        <!-- UNLOCKED BIRTHDAY LETTER -->
         <div class="letter-box" id="mainLetterBox">
             <h3>To My Favorite Little Sister 🫶</h3>
             <p>Happy Birthday to the one who has been brightening up my world since June 10, 2010!</p>
@@ -615,6 +626,7 @@
         let cakeIsCut = false;
         let totalStrawberriesPopped = 0;
         let fireworkInterval = null;
+        let lastClickTime = 0;
 
         function playMusic() {
             const audio = document.getElementById('bgMusic');
@@ -658,8 +670,6 @@
             
             setTimeout(() => {
                 document.getElementById('cakeContainer').classList.add('cut');
-                
-                // CRUCIAL CHANGE HERE: The background turns blue smoothly ONLY when cake is cut!
                 document.body.classList.add('party-active');
                 
                 if(!elementsClicked.cut) {
@@ -708,100 +718,117 @@
             }
         }
 
+        // ZOOM IN ON SINGLE TAP / RESIZE DOWN ON DOUBLE TAP CONTROLLER
         function clickPhotoCard(element, id) {
             playMusic();
+            const currentTime = new Date().getTime();
+            const timeDifference = currentTime - lastClickTime;
+
             if (!elementsClicked['card' + id]) {
                 elementsClicked['card' + id] = true;
                 let rect = element.getBoundingClientRect();
-                addPoints(10, null, rect.left + window.scrollX + 100, rect.top + window.scrollY + 50);
+                addPoints(5, null, rect.left + window.scrollX + (rect.width / 2), rect.top + window.scrollY + 20);
+            }
+
+            if (timeDifference < 300) {
+                // Double Click / Tap -> Resize to original layout
+                if (element.classList.contains('zoomed')) {
+                    element.classList.remove('zoomed');
+                    element.style.transform = '';
+                }
+            } else {
+                // Single Click / Tap -> Zoom to screen center
+                setTimeout(() => {
+                    if (new Date().getTime() - lastClickTime >= 300) {
+                        document.querySelectorAll('.photo-card-static').forEach(card => {
+                            if (card !== element) card.classList.remove('zoomed');
+                        });
+                        element.classList.add('zoomed');
+                    }
+                }, 300);
+            }
+            lastClickTime = currentTime;
+        }
+
+        function triggerOreoFountain(element) {
+            const rect = element.getBoundingClientRect();
+            const colors = ['#00e5ff', '#ffd700', '#3a9ad9', '#ffffff', '#0a3680'];
+            
+            for (let i = 0; i < 12; i++) {
+                let oreo = document.createElement('div');
+                oreo.className = 'fountain-oreo';
+                oreo.innerText = 'OREO';
+                
+                let randomColor = colors[Math.floor(Math.random() * colors.length)];
+                oreo.style.setProperty('--fountain-color', randomColor);
+                
+                oreo.style.left = `${rect.left + window.scrollX + (rect.width / 2) - 23}px`;
+                oreo.style.top = `${rect.top + window.scrollY + 20}px`;
+                
+                let angle = (Math.random() * Math.PI) + Math.PI; 
+                let speed = 8 + Math.random() * 12;
+                let fxX = Math.cos(angle) * speed * 15;
+                let fxY = Math.sin(angle) * speed * 15;
+                
+                oreo.style.setProperty('--fx-x', `${fxX}px`);
+                oreo.style.setProperty('--fx-y', `${fxY}px`);
+                oreo.style.animation = 'fountainBlast 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards';
+                
+                document.body.appendChild(oreo);
+                setTimeout(() => oreo.remove(), 1200);
             }
         }
 
-        /* --- MICROPHONE BLOW DETECTION LOGIC --- */
         function initMicrophone() {
             if (micActivated) return;
-            const statusText = document.getElementById('micStatus');
-            const btn = document.getElementById('micBtn');
+            const statusLabel = document.getElementById('micStatus');
             
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                statusText.innerText = "Requesting mic permission...";
-                navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-                .then(function(stream) {
-                    micActivated = true;
-                    statusText.innerText = "🎙️ Mic active! Blow hard into your microphone!";
-                    btn.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(function(stream) {
+                micActivated = true;
+                statusLabel.textContent = "🎙️ Mic active! Blow into your microphone to put out the candle!";
+                statusLabel.style.color = "#00e5ff";
+                
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+                
+                analyser.smoothingTimeConstant = 0.4;
+                analyser.fftSize = 1024;
+                
+                microphone.connect(analyser);
+                analyser.connect(javascriptNode);
+                javascriptNode.connect(audioContext.destination);
+                
+                javascriptNode.onaudioprocess = function() {
+                    let array = new Uint8Array(analyser.frequencyBinCount);
+                    analyser.getByteFrequencyData(array);
+                    let values = 0;
+                    for (let i = 0; i < array.length; i++) {
+                        values += array[i];
+                    }
+                    let average = values / array.length;
                     
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    analyser = audioContext.createAnalyser();
-                    microphone = audioContext.createMediaStreamSource(stream);
-                    javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
-                    
-                    analyser.smoothingTimeConstant = 0.3;
-                    analyser.fftSize = 1024;
-                    
-                    microphone.connect(analyser);
-                    analyser.connect(javascriptNode);
-                    javascriptNode.connect(audioContext.destination);
-                    
-                    javascriptNode.onaudioprocess = function() {
-                        let array = new Uint8Array(analyser.frequencyBinCount);
-                        analyser.getByteFrequencyData(array);
-                        let values = 0;
-                        let length = array.length;
-                        for (let i = 0; i < length; i++) {
-                            values += array[i];
-                        }
-                        let average = values / length;
-                        
-                        if (average > 65 && !candleIsOut) {
+                    if (average > 55) { 
+                        if (!candleIsOut) {
                             blowOutCandle(null);
-                            statusText.innerText = "🎉 Success! You blew it out!";
+                            statusLabel.textContent = "💨 You blew it out! Awesome job!";
+                            statusLabel.style.color = "#22c55e";
                             stream.getTracks().forEach(track => track.stop());
+                            javascriptNode.onaudioprocess = null;
                         }
                     }
-                })
-                .catch(function(err) {
-                    statusText.innerText = "Could not access mic. Just tap the candle/cake instead!";
-                    console.log(err);
-                });
-            } else {
-                statusText.innerText = "Mic not supported on this browser. Tap to blow out!";
-            }
+                };
+            })
+            .catch(function(err) {
+                statusLabel.textContent = "❌ Microphone access blocked. Use tap controls instead!";
+                statusLabel.style.color = "#ef4444";
+            });
         }
 
-        /* --- SHATTERED DYNAMIC OREO FOUNTAIN --- */
-        function triggerOreoFountain(boxElement) {
-            const rect = boxElement.getBoundingClientRect();
-            const startX = rect.left + window.scrollX + (rect.width / 2);
-            const startY = rect.top + window.scrollY + 20;
-            const colors = ['#00e5ff', '#ffd700', '#3a9ad9', '#ffffff'];
-
-            for (let i = 0; i < 25; i++) {
-                const miniCookie = document.createElement('div');
-                miniCookie.className = 'fountain-oreo';
-                miniCookie.innerText = 'OREO';
-                
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                miniCookie.style.setProperty('--fountain-color', randomColor);
-                
-                miniCookie.style.left = `${startX - 23}px`;
-                miniCookie.style.top = `${startY - 23}px`;
-                
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 80 + Math.random() * 140;
-                const fxX = `${Math.cos(angle) * distance}px`;
-                const fxY = `${Math.sin(angle) * distance - 60}px`;
-                
-                miniCookie.style.setProperty('--fx-x', fxX);
-                miniCookie.style.setProperty('--fx-y', fxY);
-                miniCookie.style.animation = `fountainBlast ${0.6 + Math.random() * 0.5}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`;
-                
-                document.body.appendChild(miniCookie);
-                setTimeout(() => miniCookie.remove(), 1200);
-            }
-        }
-
-        /* --- CANVAS HIGH-PERFORMANCE CELEBRATION FIREWORKS SYSTEM --- */
+        // --- HIGHT-PERFORMANCE CANVAS PARTICLES ENGINE ---
         const canvas = document.getElementById('fxCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -814,76 +841,103 @@
         resizeCanvas();
 
         class Particle {
-            constructor(x, y, color) {
+            constructor(x, y, isFirework = false, color = null) {
                 this.x = x;
                 this.y = y;
-                this.color = color;
-                this.radius = Math.random() * 3 + 1;
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 6 + 2;
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-                this.alpha = 1;
-                this.decay = Math.random() * 0.015 + 0.015;
-                this.gravity = 0.06;
+                this.isFirework = isFirework;
+                
+                const themeColors = ['#00e5ff', '#ffd700', '#0288d1', '#ffffff', '#ff6b6b', '#a855f7'];
+                this.color = color || themeColors[Math.floor(Math.random() * themeColors.length)];
+                
+                if (isFirework) {
+                    let angle = Math.random() * Math.PI * 2;
+                    let speed = Math.random() * 6 + 2;
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    this.gravity = 0.08;
+                    this.friction = 0.98;
+                    this.life = 100 + Math.random() * 40;
+                } else {
+                    this.vx = Math.random() * 6 - 3;
+                    this.vy = Math.random() * -5 - 3;
+                    this.gravity = 0.12;
+                    this.friction = 0.99;
+                    this.life = 150;
+                }
+                this.opacity = 1;
+                this.size = Math.random() * 4 + 3;
             }
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-                ctx.fill();
-                ctx.restore();
-            }
+
             update() {
+                this.vx *= this.friction;
+                this.vy *= this.friction;
                 this.vy += this.gravity;
                 this.x += this.vx;
                 this.y += this.vy;
-                this.alpha -= this.decay;
+                this.life--;
+                this.opacity = Math.max(0, this.life / 100);
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                if(this.isFirework) {
+                    ctx.arc(this.x, this.y, this.size / 1.5, 0, Math.PI * 2);
+                } else {
+                    ctx.fillRect(this.x, this.y, this.size * 1.5, this.size);
+                }
+                ctx.fill();
+                ctx.restore();
             }
         }
 
-        function spawnFirework(x, y) {
-            const colors = ['#00e5ff', '#ffd700', '#ff007f', '#3b82f6', '#a855f7', '#22c55e'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            for (let i = 0; i < 40; i++) {
-                particles.push(new Particle(x, y, randomColor));
+        document.addEventListener('click', (e) => {
+            // Clicking background closes any open photo zoom window automatically
+            if (!e.target.closest('.photo-card-static')) {
+                document.querySelectorAll('.photo-card-static').forEach(card => {
+                    card.classList.remove('zoomed');
+                    card.style.transform = '';
+                });
             }
-        }
+        });
 
         function triggerBurstFX() {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            spawnFirework(w * 0.25, h * 0.3);
-            spawnFirework(w * 0.5, h * 0.2);
-            spawnFirework(w * 0.75, h * 0.3);
+            for (let i = 0; i < 60; i++) {
+                particles.push(new Particle(window.innerWidth * 0.1, window.innerHeight * 0.9));
+                particles.push(new Particle(window.innerWidth * 0.9, window.innerHeight * 0.9));
+            }
+        }
+
+        function launchSingleFirework() {
+            let startX = Math.random() * window.innerWidth;
+            let startY = Math.random() * (window.innerHeight * 0.5);
+            const colors = ['#00e5ff', '#ffd700', '#ff3366', '#9933ff', '#33cc66'];
+            let pickedColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            for(let i=0; i<50; i++) {
+                particles.push(new Particle(startX, startY, true, pickedColor));
+            }
         }
 
         function startUnlimitedFireworks() {
             if (fireworkInterval) return;
-            fireworkInterval = setInterval(() => {
-                const randomX = Math.random() * window.innerWidth;
-                const randomY = Math.random() * (window.innerHeight * 0.6);
-                spawnFirework(randomX, randomY);
-            }, 800);
+            fireworkInterval = setInterval(launchSingleFirework, 900);
         }
 
-        function animateFX() {
+        function updateParticlesLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].update();
-                if (particles[i].alpha <= 0) {
+                particles[i].draw();
+                if (particles[i].life <= 0 || particles[i].opacity <= 0) {
                     particles.splice(i, 1);
-                } else {
-                    particles[i].draw();
                 }
             }
-            requestAnimationFrame(animateFX);
+            requestAnimationFrame(updateParticlesLoop);
         }
-        animateFX();
+        requestAnimationFrame(updateParticlesLoop);
     </script>
 </body>
 </html>
