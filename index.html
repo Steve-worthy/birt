@@ -41,7 +41,7 @@
             max-width: 1000px;
             margin: 0 auto;
             position: relative;
- z-index: 5;
+            z-index: 5;
         }
 
         header h1 {
@@ -55,6 +55,7 @@
             -webkit-text-fill-color: transparent;
             animation: rainbowGradient 8s ease infinite;
             filter: drop-shadow(2px 3px 0px rgba(255,255,255,0.9));
+            transition: all 0.5s ease-in-out;
         }
 
         header p {
@@ -367,7 +368,6 @@
             box-shadow: 0 15px 35px rgba(0, 229, 255, 0.2);
         }
         
-        /* FIX: Changed layout rules so images scale cleanly with 0% cutting or cropping */
         .photo-card-static img { 
             width: 100%; 
             height: auto; 
@@ -558,10 +558,10 @@
         </div>
 
         <div class="letter-box" id="mainLetterBox">
-            <h3>To My  Little Sister 🫶</h3>
+            <h3>To My Favorite Little Sister 🫶</h3>
             <p>Happy Birthday to the one who has been brightening up my world since June 10, 2010!</p>
-            <p>Watching you grow from a tiny little kid into the incredible, smart, and wonderful girl spending time with you is one of the best moments. </p>
-            <p>No matter how old you get, you’ll always be my little sister. I promise to always look out for you, help you sneak late-night snacks, and always leave you the bigger half of the Cadbury Silk Oreo block. Have the happiest birthday today!  💕</p>
+            <p>Watching you grow from a tiny little kid into the incredible, smart, and wonderful girl you are today has been one of my absolute favorite things. Even though we tease each other, argue over the smallest things, and you constantly steal my energy, you know I wouldn’t trade you for anyone else.</p>
+            <p>No matter how old you get, you’ll always be my little sister. I promise to always look out for you, help you sneak late-night snacks, and always leave you the bigger half of the Cadbury Silk Oreo block. Have the happiest birthday today! You deserve the world. 💕</p>
         </div>
     </div>
 
@@ -684,6 +684,9 @@
             setTimeout(() => {
                 document.getElementById('cakeContainer').classList.add('cut');
                 document.body.classList.add('party-active');
+                
+                // DYNAMIC CHANGE: Changes title to Happy Birthday Ishika after slice finishes
+                document.getElementById('main-title').textContent = "Happy Birthday Ishika 🎉💖";
                 
                 if(!elementsClicked.cut) {
                     elementsClicked.cut = true;
